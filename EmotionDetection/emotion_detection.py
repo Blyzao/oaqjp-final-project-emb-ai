@@ -9,7 +9,8 @@ def emotion_detector(text_to_analyze):
     """Run emotion detection on the given text.
 
     Returns a dictionary with the anger, disgust, fear, joy and sadness scores
-    plus the dominant emotion (the one with the highest score).
+    plus the dominant emotion (the one with the highest score). For a blank
+    entry the server answers with status code 400 and every value is None.
     """
     url = ('https://sn-watson-emotion.labs.skills.network/v1/'
            'watson.runtime.nlp.v1/NlpService/EmotionPredict')
@@ -17,6 +18,16 @@ def emotion_detector(text_to_analyze):
     input_json = {"raw_document": {"text": text_to_analyze}}
 
     response = requests.post(url, json=input_json, headers=headers)
+
+    if response.status_code == 400:
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
 
     formatted_response = json.loads(response.text)
     emotions = formatted_response['emotionPredictions'][0]['emotion']
